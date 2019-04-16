@@ -50,25 +50,19 @@ class WelcomePage(tk.Frame):
         self.controller = controller
         tk.Frame.__init__(self, parent)
 
-        tk.Frame.configure(self, bg = 'white')
+        tk.Frame.configure(self, bg = '#b6e7f9')
 
-        label = tk.Label(self, text='Welcome to Fourier_Pass_Locker', bg = 'white')
-        label.grid(column = 0 , row = 0)
+        label = tk.Label(self, text='Welcome to Fourier_Pass_Locker', bg = '#b6e7f9')
+        label.grid(column = 1 , row = 0)
 
         btn1 = tk.Button(self, text='New Member', command=lambda: controller.show_frame(RegistrationPage))
-        btn1.grid(column=0, row=1)
+        btn1.grid(column=1, row=2)
 
-        label2 = tk.Label(self, text='ALREADY A MEMBER?', bg = 'white')
-        label2.grid(column=0, row=2)
-
-        label2 = tk.Label(self, text='Enter Username or Firstname & Lastname', bg = 'white')
-        label2.grid(column=0, row=3)
-
-        txt1 = tk.Entry(self, width=15)
-        txt1.grid(column=1, row=3)
+        label2 = tk.Label(self, text='ALREADY A MEMBER?', bg = '#b6e7f9')
+        label2.grid(column=1, row=4)
 
         btn2 = tk.Button(self, text='Sign In!', command=lambda: controller.show_frame(Sign_in_page))
-        btn2.grid(column= 1, row=4)
+        btn2.grid(column= 1, row=5)
 
 
 
@@ -77,6 +71,7 @@ class RegistrationPage(tk.Frame):
 
         self.controller = controller
         tk.Frame.__init__(self,parent)
+        tk.Frame.configure(self, bg = '#b6e7f9')
 
         lbl1 = tk.Label(self, text='username')
         lbl1.grid(column=0, row=1)
@@ -111,6 +106,7 @@ class Sign_in_page(tk.Frame):
     def __init__(self, parent, controller):
         self.controller = controller
         tk.Frame.__init__(self, parent)
+        tk.Frame.configure(self, bg='#b6e7f9')
 
         lbl1 = tk.Label(self, text='username')
         lbl1.grid(column=0, row=1)
@@ -154,6 +150,8 @@ class StartPage(tk.Frame):
 
         self.controller = controller
         tk.Frame.__init__(self,parent)
+        tk.Frame.configure(self, bg='#b6e7f9')
+
         btn1 = tk.Button(self, text='Generate password audio', command = lambda: controller.show_frame(Form_Page))
         btn1.grid(column=0, row=1)
 
@@ -166,6 +164,7 @@ class Form_Page(tk.Frame):
 
         self.controller = controller
         tk.Frame.__init__(self,parent)
+        tk.Frame.configure(self, bg='#b6e7f9')
 
         label = tk.Label(self, text = 'Enter Details')
         label.grid(column = 2, row = 0)
@@ -207,6 +206,7 @@ class Form_Page2(tk.Frame):
     def __init__(self, parent, controller):
         self.controller = controller
         tk.Frame.__init__(self,parent)
+        tk.Frame.configure(self, bg='#b6e7f9')
 
         # label = tk.Label(self, text = 'Enter Details')
         # label.pack(pady = 10, padx = 10)
@@ -236,6 +236,7 @@ class Rec_or_Audiofile(tk.Frame):
     def __init__(self, parent, controller):
         self.controller = controller
         tk.Frame.__init__(self,parent)
+        tk.Frame.configure(self, bg='#b6e7f9')
 
         selected = tk.IntVar()
 
@@ -260,6 +261,7 @@ class Rec_page(tk.Frame):
     def __init__(self, parent, controller):
         self.controller = controller
         tk.Frame.__init__(self,parent)
+        tk.Frame.configure(self, bg='#b6e7f9')
 
         lbl1 = tk.Label(self, text = 'Press Start to start recording!')
         lbl1.grid(column = 0, row = 0)
@@ -267,7 +269,7 @@ class Rec_page(tk.Frame):
         btn1 = tk.Button(self, text = 'START RECORDING', command = lambda: self.audio_analysis())
         btn1.grid(column = 1, row = 0)
 
-    def audio_analysis(self,rec=None, tim = 10):
+    def audio_analysis(self, controller, parent, rec=None, tim = 10):
         CHUNK = 1024
         FORMAT = pyaudio.paInt16
         CHANNELS = 1
@@ -332,36 +334,37 @@ class Aud_page(tk.Frame):
     def __init__(self, parent, controller):
         self.controller = controller
         tk.Frame.__init__(self,parent)
+        tk.Frame.configure(self, bg='#b6e7f9')
 
         labl1 = tk.Label(self, text = "Select the file you wish to use" )
         labl1.grid(column = 0, row = 0)
 
 
-        def aud_analysis2(file):
-            recording = file
-            try:
-                fs, data = wavfile.read(recording)
-            except:
-                recording = input('Enter name again: ')
-                fs, data = wavfile.read(recording)
+    def aud_analysis2(self, file, parent, controller):
+        recording = file
+        try:
+            fs, data = wavfile.read(recording)
+        except:
+            recording = input('Enter name again: ')
+            fs, data = wavfile.read(recording)
 
-            channel_1 = data[:]
-            fourier = np.fft.rfft(channel_1, 10000000)
-            t = 1 / 44100
-            freq = np.fft.rfftfreq(100, d=t)
-            mag = np.abs(fourier)
+        channel_1 = data[:]
+        fourier = np.fft.rfft(channel_1, 10000000)
+        t = 1 / 44100
+        freq = np.fft.rfftfreq(100, d=t)
+        mag = np.abs(fourier)
 
-            self.controller.shared_data['properties'] = [fourier, mag, freq]
-            # print(self.controller.shared_data['properties'])
-            controller.show_frame(Process_Page)
-            x = Process_Page(parent, controller)
-            Process_Page.get_maxs(x, controller)
+        self.controller.shared_data['properties'] = [fourier, mag, freq]
+         # print(self.controller.shared_data['properties'])
+        controller.show_frame(Process_Page)
+        x = Process_Page(parent, controller)
+        Process_Page.get_maxs(x, controller)
 
-        def select_file():
-            file = filedialog.askopenfilename()
-            aud_analysis2(file)
+    def select_file(self, parent, controller):
+        file = filedialog.askopenfilename()
+        self.aud_analysis2(file, parent, controller)
 
-        btn1 = tk.Button(self, text = 'Open', command = lambda: select_file())
+        btn1 = tk.Button(self, text = 'Open', command = lambda: self.select_file(parent, controller))
         btn1.grid(column = 2, row = 0)
 
 
@@ -369,29 +372,41 @@ class Process_Page(tk.Frame):
     def __init__(self, parent, controller):
         self.controller = controller
         tk.Frame.__init__(self,parent)
+        tk.Frame.configure(self, bg='#b6e7f9')
 
         labl1 = tk.Label(self, text="Processing your information...")
         labl1.grid(column=0, row=0)
 
     def get_maxs(self,controller):
         self.controller = controller
-        properties = self.controller.shared_data['properties']
         entries = self.controller.shared_data['entries']
-        maxess = self.controller.shared_data['maxess'
+        properties = self.controller.shared_data['properties']
         mag = properties[1]
-        freq = properties[2]
         fourier = properties[0]
         password = entries[2]
         sorted_f = sorted(mag)
         maxs = []
         m = -1
-        n = len(entries[2])
+        n = len(password)
         for k in range(n):
             index = np.where(mag == sorted_f[m])
             maxs.append(index[0][0])
             m += -1
         print(maxs)
         self.controller.shared_data['maxs'] = maxs
+
+
+    def create_final_file(self, controller, parent):
+        self.controller = controller
+        properties = self.controller.shared_data['properties']
+        entries = self.controller.shared_data['entries']
+        password = entries[2]
+        mag = properties[1]
+        fourier = properties[0]
+        maxess = self.controller.shared_data['maxess']
+        maxs = self.controller.shared_data['maxs']
+        user = entries[0]
+        account_name = entries[1]
         # all ascii values for possible password characters are within the range of 65 ~ 150, can be easily represented
         # as phase angles in degrees!
         ascii_password = []
@@ -409,7 +424,7 @@ class Process_Page(tk.Frame):
 
         # creating the modified audio file
         data = np.fft.irfft(fourier)
-        name_of_newaud = input('Enter the name of the audio file: ')
+        name_of_newaud = user + '_' + account_name
         name = name_of_newaud + '.wav'
         print(name)
         wavfile.write(name, 44100, data)
