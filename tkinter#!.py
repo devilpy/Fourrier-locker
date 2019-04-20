@@ -1,13 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+import audio_analysis_fft as fourier_comps
 import numpy as np
-from scipy.io import wavfile
-import math
 import yates_unyates as yts
-import time
-import pyaudio
-import wave
+import fourier_pass_locker as fplocker
 from tkinter import filedialog
 from Crypto.Hash import SHA256
 
@@ -31,7 +28,8 @@ class Fourier_pass_locker(tk.Tk):
 
         self.frames = {}
 
-        for F in (WelcomePage,StartPage, Form_Page, Form_Page2, Rec_or_Audiofile, Rec_page, Aud_page, Process_Page, RegistrationPage, Sign_in_page):
+        for F in (WelcomePage,StartPage, Form_Page, Form_Page2, Rec_or_Audiofile, Rec_page, Aud_page, Process_Page, RegistrationPage,
+                  Final_Page, Sign_in_page):
 
             frame = F(container, self)
 
@@ -93,7 +91,7 @@ class RegistrationPage(tk.Frame):
         h.update(b)
         shaEncryp = h.hexdigest()
         shit = Rec_page(parent, controller)
-        key = shit.audio_analysis(parent, 'voice', tim = 5, rec = 'my_voice')
+        key = shit.audio_analysis1(controller, parent,rec = 'my_voice',tim = 5)
         maxess = []
         j = -1
         for k in range(5):
@@ -129,7 +127,7 @@ class Sign_in_page(tk.Frame):
 
     def signme_in(self, parent, controller):
         shit = Rec_page(parent, controller)
-        key = shit.audio_analysis('voice', tim=5)
+        key = shit.audio_analysis1('voice', tim=5)
         maxess = []
         j = -1
         for k in range(5):
@@ -285,68 +283,17 @@ class Rec_page(tk.Frame):
         lbl1 = tk.Label(self, text = 'Press Start to start recording!')
         lbl1.grid(column = 0, row = 0)
 
-        btn1 = tk.Button(self, text = 'START RECORDING', command = lambda: self.audio_analysis())
+        btn1 = tk.Button(self, text = 'START RECORDING', command = lambda: self.audio_analysis(controller, parent))
         btn1.grid(column = 1, row = 0)
 
-    def audio_analysis(self, controller, parent, rec=None, tim = 10):
-        CHUNK = 1024
-        FORMAT = pyaudio.paInt16
-        CHANNELS = 1
-        RATE = 44100
-        RECORD_SECONDS = tim
-        name = str(input("Enter name of participant:"))
-        WAVE_OUTPUT_FILENAME = name + '.wav'
-
-        p = pyaudio.PyAudio()
-
-        time.sleep(3)
-
-        stream = p.open(format=FORMAT,
-                        channels=CHANNELS,
-                        rate=RATE,
-                        input=True,
-                        frames_per_buffer=CHUNK)
-
-        print("* recording")
-
-        frames = []
-
-        for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-            data = stream.read(CHUNK)
-            frames.append(data)
-
-        print("* done recording")
-
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
-
-        wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
-        wf.setnchannels(CHANNELS)
-        wf.setsampwidth(p.get_sample_size(FORMAT))
-        wf.setframerate(RATE)
-        wf.writeframes(b''.join(frames))
-        wf.close()
-
-        fs, data = wavfile.read(WAVE_OUTPUT_FILENAME)
-
-        channel_1 = data[:]
-        if rec == None:
-            no_elem = 10000000
-        else:
-            no_elem = 10000
-        fourier = np.fft.rfft(channel_1, no_elem)
-        t = 1 / 44100
-        freq = np.fft.rfftfreq(100, d=t)
-        mag = np.abs(fourier)
-
+    def audio_analysis1(self, controller, parent, rec=None, tim = 10):
         if rec == None:
             x = Process_Page(parent, controller)
             Process_Page.get_maxs(x, controller)
             controller.show_frame(Process_Page)
-            self.controller.shared_data['properties'] = [fourier, mag, freq]
+            self.controller.shared_data['properties'] = fourier_comps.give_me_mags(tim = tim)
         else:
-            return [fourier, mag, freq]
+            return fourier_comps.give_me_mags(f = 'voice_pass', tim = tim)
 
 
 class Aud_page(tk.Frame):
@@ -362,20 +309,7 @@ class Aud_page(tk.Frame):
         btn1.grid(column=2, row=0)
 
     def aud_analysis2(self, file, parent, controller):
-        recording = file
-        try:
-            fs, data = wavfile.read(recording)
-        except:
-            recording = input('Enter name again: ')
-            fs, data = wavfile.read(recording)
-
-        channel_1 = data[:]
-        fourier = np.fft.rfft(channel_1, 10000000)
-        t = 1 / 44100
-        freq = np.fft.rfftfreq(100, d=t)
-        mag = np.abs(fourier)
-
-        self.controller.shared_data['properties'] = [fourier, mag, freq]
+        self.controller.shared_data['properties'] = fourier_comps.give_me_mags(file = file, f = 'usingfile')
          # print(self.controller.shared_data['properties'])
         controller.show_frame(Process_Page)
         x = Process_Page(parent, controller)
@@ -399,23 +333,14 @@ class Process_Page(tk.Frame):
     def get_maxs(self,controller):
         self.controller = controller
         entries = self.controller.shared_data['entries']
+        n = len(entries[2])
         properties = self.controller.shared_data['properties']
-        mag = properties[1]
-        fourier = properties[0]
-        password = entries[2]
-        sorted_f = sorted(mag)
-        maxs = []
-        m = -1
-        n = len(password)
-        for k in range(n):
-            index = np.where(mag == sorted_f[m])
-            maxs.append(index[0][0])
-            m += -1
-        print(maxs)
+        maxs = fplocker.get_maxs(properties, n)
         self.controller.shared_data['maxs'] = maxs
+        self.create_final_file(controller)
 
 
-    def create_final_file(self, controller, parent):
+    def create_final_file(self, controller):
         self.controller = controller
         properties = self.controller.shared_data['properties']
         entries = self.controller.shared_data['entries']
@@ -432,27 +357,17 @@ class Process_Page(tk.Frame):
         account_info_file.close()
         # all ascii values for possible password characters are within the range of 65 ~ 150, can be easily represented
         # as phase angles in degrees!
-        ascii_password = []
-        for char in password:
-            ascii_password.append(ord(char))
+        fplocker.create_final(password,maxs,user,fourier,maxess)
+        controller.show_frame(Final_Page)
 
-        alpha_pass = yts.yates(ascii_password, maxess)
+class Final_Page(tk.Frame):
+    def __init__(self, parent, controller):
+        self.controller = controller
+        tk.Frame.__init__(self, parent)
+        tk.Frame.configure(self, bg='#b6e7f9')
 
-        # altering the phase values of fourier elements with indexes in alpha
-        for m in range(n):
-            indice = maxs[m]
-            fourier[indice] = mag[indice] * complex(math.cos(math.radians(alpha_pass[m])),
-                                                math.sin(math.radians(alpha_pass[m])))
-            print(np.angle(fourier[indice]))
-
-        # creating the modified audio file
-        data = np.fft.irfft(fourier)
-        name_of_newaud = user + '_' + account_name
-        name = name_of_newaud + '.wav'
-        print(name)
-        wavfile.write(name, 44100, data)
-        # fourier_locker()
-
+        labl1 = tk.Label(self, text='Your password has been succesfully hidden!')
+        labl1.pack()
 
 app = Fourier_pass_locker()
 app.mainloop()
