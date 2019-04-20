@@ -51,6 +51,7 @@ def yates(a,b):
 #all ascii values for possible password characters are within the range of 65 ~ 150, can be easily represented
 #as phase angles in degrees!
 def create_final(password, maxs, name_of_user, properties, maxess):
+    n = len(password)
     fourier = properties[0]
     mag = properties[1]
     ascii_password = []
@@ -63,8 +64,10 @@ def create_final(password, maxs, name_of_user, properties, maxess):
     #altering the phase values of fourier elements with indexes in alpha
     for max in range(n):
         indice = maxs[max]
-        fourier[indice] = mag[indice]*complex(math.cos(math.radians(alpha_pass[max])), math.sin(math.radians(alpha_pass[max])))
-        print(np.angle(fourier[indice]))
+        new_phase = alpha_pass[max]
+        phase_rad = math.radians(new_phase)
+        fourier[indice] = mag[indice]*complex(math.cos(phase_rad), math.sin(phase_rad))
+        # print(np.angle(fourier[indice]))
 
     # creating the modified audio file
     data = np.fft.irfft(fourier)

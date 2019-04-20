@@ -71,13 +71,14 @@ def give_me_mags(f = None, tim = 10, file = None):
 
 
     channel_1 = data[:]
+    siz = channel_1.size
     if f == 'voice_pass':
-        no_of_elements = 10000
+        no_of_elements = 22050
     else:
-        no_of_elements = 10000000
+        no_of_elements = siz
     fourier = np.fft.rfft(channel_1,no_of_elements)
     t = 1/44100
-    freq = np.fft.rfftfreq(100,d = t)
+    freq = np.fft.rfftfreq(no_of_elements,d = t)
     mag = np.abs(fourier)
     ##normalizing the magnitudes by dividing each mag by the maximum magnitude
     # max = np.nanmax(mag)

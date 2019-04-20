@@ -353,11 +353,11 @@ class Process_Page(tk.Frame):
         user = entries[0]
         account_name = entries[1]
         account_info_file = open('account_info.txt', 'a')
-        account_info_file.write(user + '=' + account_name + '=' + password )
+        account_info_file.write(user + '=' + account_name + '=' + str(n) )
         account_info_file.close()
         # all ascii values for possible password characters are within the range of 65 ~ 150, can be easily represented
         # as phase angles in degrees!
-        fplocker.create_final(password,maxs,user,fourier,maxess)
+        fplocker.create_final(password,maxs,user,properties,maxess)
         controller.show_frame(Final_Page)
 
 class Final_Page(tk.Frame):
