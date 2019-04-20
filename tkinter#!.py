@@ -93,7 +93,7 @@ class RegistrationPage(tk.Frame):
         h.update(b)
         shaEncryp = h.hexdigest()
         shit = Rec_page(parent, controller)
-        key = shit.audio_analysis('voice', tim = 5)
+        key = shit.audio_analysis(parent, 'voice', tim = 5, rec = 'my_voice')
         maxess = []
         j = -1
         for k in range(5):
@@ -358,6 +358,8 @@ class Aud_page(tk.Frame):
         labl1 = tk.Label(self, text = "Select the file you wish to use" )
         labl1.grid(column = 0, row = 0)
 
+        btn1 = tk.Button(self, text='Open', command=lambda: self.select_file(parent, controller))
+        btn1.grid(column=2, row=0)
 
     def aud_analysis2(self, file, parent, controller):
         recording = file
@@ -383,8 +385,6 @@ class Aud_page(tk.Frame):
         file = filedialog.askopenfilename()
         self.aud_analysis2(file, parent, controller)
 
-        btn1 = tk.Button(self, text = 'Open', command = lambda: self.select_file(parent, controller))
-        btn1.grid(column = 2, row = 0)
 
 
 class Process_Page(tk.Frame):
@@ -427,6 +427,9 @@ class Process_Page(tk.Frame):
         maxs = self.controller.shared_data['maxs']
         user = entries[0]
         account_name = entries[1]
+        account_info_file = open('account_info.txt', 'a')
+        account_info_file.write(user + '=' + account_name + '=' + password )
+        account_info_file.close()
         # all ascii values for possible password characters are within the range of 65 ~ 150, can be easily represented
         # as phase angles in degrees!
         ascii_password = []
