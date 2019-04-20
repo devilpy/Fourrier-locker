@@ -9,6 +9,7 @@ import time
 import pyaudio
 import wave
 from tkinter import filedialog
+from Crypto.Hash import SHA256
 
 class Fourier_pass_locker(tk.Tk):
 
@@ -87,6 +88,10 @@ class RegistrationPage(tk.Frame):
 
     def register_user(self, parent, controller):
         text = self.txt1.get()
+        b = str.encode(text)
+        h = SHA256.new()
+        h.update(b)
+        shaEncryp = h.hexdigest()
         shit = Rec_page(parent, controller)
         key = shit.audio_analysis('voice', tim = 5)
         maxess = []
@@ -96,8 +101,13 @@ class RegistrationPage(tk.Frame):
             maxess.append(index[0][0])
             j += -1
         print(maxess)
+        b2 = str.encode(str(maxess))
+        h2 = SHA256.new()
+        h2.update(b2)
+        sha_myspecs = h2.hexdigest()
+
         membersFile = open('members.txt', 'a')
-        membersFile.write(text + ':' + str(maxess) + '\n')
+        membersFile.write(shaEncryp + ':' + sha_myspecs + '\n')
         membersFile.close()
         self.controller.shared_data['maxess'] = maxess
         controller.show_frame(StartPage)
@@ -127,6 +137,10 @@ class Sign_in_page(tk.Frame):
             maxess.append(index[0][0])
             j += -1
         self.controller.shared_data['maxess'] = maxess
+        b1 = str.encode(str(maxess))
+        h1 = SHA256.new()
+        h1.update(b1)
+        user_specs = h1.hexdigest()
         membersFile = open('members.txt', 'r')
         users_and_passwords = membersFile.readlines()
         membersFile.close()
@@ -137,9 +151,14 @@ class Sign_in_page(tk.Frame):
             us_and_p = usp[0].split(':')
             user_pass_info[us_and_p[0]] = us_and_p[1]
         print(user_pass_info)
-        if self.txt1.get() in user_pass_info.keys() and self.controller.shared_data['maxess'] == user_pass_info[self.txt1.get()] :
+        username = self.txt1.get()
+        b2 = str.encode(username)
+        h2 = SHA256.new()
+        h2.update(b2)
+        shaEncryp = h2.hexdigest()
+        if shaEncryp in user_pass_info.keys() and user_specs == user_pass_info[shaEncryp] :
             controller.show_frame(StartPage)
-        elif self.txt1.get() in user_pass_info.keys() and self.controller.shared_data['maxess'] != user_pass_info[self.txt1.get()] :
+        elif shaEncryp in user_pass_info.keys() and user_specs != user_pass_info[shaEncryp] :
             tk.messagebox.showinfo('Could not SignIN!', 'Incorrect Vocie Password')
         else:
             tk.messagebox.showinfo('Could not SignIn!', 'User not registered!')
@@ -401,6 +420,7 @@ class Process_Page(tk.Frame):
         properties = self.controller.shared_data['properties']
         entries = self.controller.shared_data['entries']
         password = entries[2]
+        n = len(password)
         mag = properties[1]
         fourier = properties[0]
         maxess = self.controller.shared_data['maxess']
