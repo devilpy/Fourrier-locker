@@ -1,4 +1,4 @@
-# Fourrier-locker
+# Fourier-locker
 A desktop app to hide passwords and other sensitive data inside audio files.
 It is basically a steganographic approach to hiding information. A better way compared to basic encryption.
 The fourier_locker file includes the code for creating an audio file with information embedded in it.
