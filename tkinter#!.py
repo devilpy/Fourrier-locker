@@ -3,10 +3,11 @@ from tkinter import ttk
 from tkinter import messagebox
 import audio_analysis_fft as fourier_comps
 import numpy as np
-import yates_unyates as yts
+import hash_it
 import fourier_pass_locker as fplocker
+import fourier_pass_unlocker as fpunlocker
 from tkinter import filedialog
-from Crypto.Hash import SHA256
+
 
 class Fourier_pass_locker(tk.Tk):
 
@@ -86,10 +87,7 @@ class RegistrationPage(tk.Frame):
 
     def register_user(self, parent, controller):
         text = self.txt1.get()
-        b = str.encode(text)
-        h = SHA256.new()
-        h.update(b)
-        shaEncryp = h.hexdigest()
+        shaEncryp = hash_it.hash_me(text)
         shit = Rec_page(parent, controller)
         key = shit.audio_analysis1(controller, parent,rec = 'my_voice',tim = 5)
         maxess = []
@@ -99,16 +97,12 @@ class RegistrationPage(tk.Frame):
             maxess.append(index[0][0])
             j += -1
         print(maxess)
-        b2 = str.encode(str(maxess))
-        h2 = SHA256.new()
-        h2.update(b2)
-        sha_myspecs = h2.hexdigest()
+        sha_myspecs = hash_it.hash_me(str(maxess))
 
         membersFile = open('members.txt', 'a')
         membersFile.write(shaEncryp + ':' + sha_myspecs + '\n')
         membersFile.close()
-        self.controller.shared_data['maxess'] = maxess
-        controller.show_frame(StartPage)
+        controller.show_frame(Sign_in_page)
 
 class Sign_in_page(tk.Frame):
     def __init__(self, parent, controller):
@@ -135,10 +129,8 @@ class Sign_in_page(tk.Frame):
             maxess.append(index[0][0])
             j += -1
         self.controller.shared_data['maxess'] = maxess
-        b1 = str.encode(str(maxess))
-        h1 = SHA256.new()
-        h1.update(b1)
-        user_specs = h1.hexdigest()
+        user_specs = hash_it.hash_me(str(maxess))
+
         membersFile = open('members.txt', 'r')
         users_and_passwords = membersFile.readlines()
         membersFile.close()
@@ -150,16 +142,17 @@ class Sign_in_page(tk.Frame):
             user_pass_info[us_and_p[0]] = us_and_p[1]
         print(user_pass_info)
         username = self.txt1.get()
-        b2 = str.encode(username)
-        h2 = SHA256.new()
-        h2.update(b2)
-        shaEncryp = h2.hexdigest()
+        self.controller.shared_data['username'] = username
+        shaEncryp = hash_it.hash_me(username)
+
         if shaEncryp in user_pass_info.keys() and user_specs == user_pass_info[shaEncryp] :
             controller.show_frame(StartPage)
         elif shaEncryp in user_pass_info.keys() and user_specs != user_pass_info[shaEncryp] :
-            tk.messagebox.showinfo('Could not SignIN!', 'Incorrect Vocie Password')
+            tk.messagebox.showinfo('Could not SignIN!', 'Incorrect Voice Password')
+            controller.show_frame(Sign_in_page)
         else:
             tk.messagebox.showinfo('Could not SignIn!', 'User not registered!')
+            controller.show_frame(RegistrationPage)
 
 class StartPage(tk.Frame):
 
@@ -186,7 +179,7 @@ class Form_Page(tk.Frame):
         label = tk.Label(self, text = 'Enter Details')
         label.grid(column = 2, row = 0)
 
-        lbl1 = tk.Label(self, text = 'username')
+        lbl1 = tk.Label(self, text = 'acc username')
         lbl1.grid(column = 0, row = 1)
         txt1 = tk.Entry(self, width = 10)
         txt1.grid(column = 1, row = 1)
@@ -228,15 +221,20 @@ class Form_Page2(tk.Frame):
         # label = tk.Label(self, text = 'Enter Details')
         # label.pack(pady = 10, padx = 10)
 
-        lbl1 = tk.Label(self, text = 'Audio file')
-        lbl1.grid(column = 0, row = 0)
-        txt1 = tk.Entry(self, width = 10)
-        txt1.grid(column = 1, row = 0)
+        lbl1 = tk.Label(self, text='account associated')
+        lbl1.grid(column=0, row=0)
+        txt1 = tk.Entry(self, width=20)
+        txt1.grid(column=1, row=0)
 
-        lbl2 = tk.Label(self, text = 'account associated')
+        lbl2 = tk.Label(self, text = 'Select Audio file')
         lbl2.grid(column = 0, row = 1)
-        txt2 = tk.Entry(self, width=10)
-        txt2.grid(column=1, row=1)
+        btn1 = tk.Button(self, text = 'Open' ,command = lambda: click_open())
+        btn1.grid(column = 1, row = 1)
+
+        def click_open():
+            acc_name = txt1.get()
+            self.select_file(controller,parent,acc_name)
+
 
         btn_home = ttk.Button(self, text = 'Home', command = lambda: controller.show_frame(StartPage))
         btn_home.grid(column = 3, row = 1)
@@ -244,10 +242,37 @@ class Form_Page2(tk.Frame):
         btn_home = ttk.Button(self, text = 'Next')
         btn_home.grid(column = 0, row = 3)
 
-        btn_home = ttk.Button(self, text = 'Create', command = lambda: controller.show_frame(Form_Page))
+        btn_home = ttk.Button(self, text = 'Generate', command = lambda: controller.show_frame(Form_Page))
         btn_home.grid(column = 1, row = 3)
 
+    def select_file(self, parent, controller,acc_name):
+        file = filedialog.askopenfilename()
+        self.is_acc_available(controller,parent, acc_name, file)
 
+    def is_acc_available(self,controller, parent, acc_name, file):
+        self.controller = controller
+        maxess = self.controller.shared_data['maxess']
+        username = self.controller.shared_data['username']
+        hashed_user = hash_it.hash_me(username)
+        hashed_acc_name = hash_it.hash_me(acc_name)
+        acc_file = open('account_info.txt', 'r')
+        acc_data = acc_file.readlines()
+        acc_file.close()
+        for element in acc_data:
+            acc = element.split('\n')
+            acc_names = acc[0].split('=')
+            if username != acc_names[0]:
+                pass
+            elif hashed_user == acc_names[0] and username[1] == hashed_acc_name:
+                n = acc_names[1]
+                self.controller.shared_data['length'] = n
+                controller.show_frame(Process_Page)
+                password = fpunlocker.unlock_pass(file,n,maxess)
+                controller.show_frame(Final_Page)
+                tk.messagebox.showinfo('Your password is %s' % password)
+            else:
+                tk.messagebox.showinfo('Could not find account under %s' % username)
+                controller.show_frame(Sign_in_page)
 
 class Rec_or_Audiofile(tk.Frame):
     def __init__(self, parent, controller):
@@ -283,7 +308,7 @@ class Rec_page(tk.Frame):
         lbl1 = tk.Label(self, text = 'Press Start to start recording!')
         lbl1.grid(column = 0, row = 0)
 
-        btn1 = tk.Button(self, text = 'START RECORDING', command = lambda: self.audio_analysis(controller, parent))
+        btn1 = tk.Button(self, text = 'START RECORDING', command = lambda: self.audio_analysis1(controller, parent))
         btn1.grid(column = 1, row = 0)
 
     def audio_analysis1(self, controller, parent, rec=None, tim = 10):
@@ -344,16 +369,17 @@ class Process_Page(tk.Frame):
         self.controller = controller
         properties = self.controller.shared_data['properties']
         entries = self.controller.shared_data['entries']
+        username = self.controller.shared_data['username']
         password = entries[2]
         n = len(password)
-        mag = properties[1]
-        fourier = properties[0]
         maxess = self.controller.shared_data['maxess']
         maxs = self.controller.shared_data['maxs']
         user = entries[0]
         account_name = entries[1]
         account_info_file = open('account_info.txt', 'a')
-        account_info_file.write(user + '=' + account_name + '=' + str(n) )
+        encryp_user = hash_it.hash_me(username)
+        encryp_acc = hash_it.hash_me(account_name)
+        account_info_file.write(encryp_user + '=' + encryp_acc + '=' + str(n) + '\n')
         account_info_file.close()
         # all ascii values for possible password characters are within the range of 65 ~ 150, can be easily represented
         # as phase angles in degrees!
@@ -366,7 +392,7 @@ class Final_Page(tk.Frame):
         tk.Frame.__init__(self, parent)
         tk.Frame.configure(self, bg='#b6e7f9')
 
-        labl1 = tk.Label(self, text='Your password has been succesfully hidden!')
+        labl1 = tk.Label(self, text='Awesome, Process was successful!')
         labl1.pack()
 
 app = Fourier_pass_locker()

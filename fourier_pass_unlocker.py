@@ -18,7 +18,7 @@ def un_yates(a,b):
     return a
 #--------------------------------------------
 def unlock_pass(audio, n, yates_indexes):
-    four_specs = aud_an.give_me_mags(audio)
+    four_specs = aud_an.give_me_mags(f = 'audio', file = audio)
     mag = four_specs[1]
     fourier = four_specs[0]
     sorted_f = sorted(mag)

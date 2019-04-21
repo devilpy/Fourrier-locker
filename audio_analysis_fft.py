@@ -58,7 +58,7 @@ def give_me_mags(f = None, tim = 10, file = None):
         fs,data = wavfile.read(WAVE_OUTPUT_FILENAME)
 
     else:
-        if f == None:
+        if file == None:
             recording = input("Enter name of file you want to use:")
 
         else:
