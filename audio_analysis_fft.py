@@ -1,11 +1,9 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.io import wavfile
-from scipy.fftpack import fft
-from scipy import signal
 import time
 import pyaudio
 import wave
+import os
 
 def give_me_mags(f = None, tim = 10, file = None):
     CHUNK = 1024
@@ -20,8 +18,7 @@ def give_me_mags(f = None, tim = 10, file = None):
     else:
         dec = 'f'
     if dec == 'r':
-        name = str(input("Enter name of participant:"))
-        WAVE_OUTPUT_FILENAME = name + '.wav'
+        WAVE_OUTPUT_FILENAME = 'recording' + '.wav'
 
         p = pyaudio.PyAudio()
 
@@ -56,6 +53,8 @@ def give_me_mags(f = None, tim = 10, file = None):
 
 
         fs,data = wavfile.read(WAVE_OUTPUT_FILENAME)
+        #deleting recording
+        os.remove(WAVE_OUTPUT_FILENAME)
 
     else:
         if file == None:
@@ -91,4 +90,3 @@ def give_me_mags(f = None, tim = 10, file = None):
 
 
     return [fourier,mag,freq]
-#

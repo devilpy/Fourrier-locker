@@ -24,16 +24,16 @@ def unlock_pass(audio, n, yates_indexes):
     sorted_f = sorted(mag)
     maxs = []
     m = -1
-    for k in range(n):
+    for k in range(int(n)):
         index = np.where(mag == sorted_f[m])
         maxs.append(index[0][0])
         m += -1
     pass_chars = []
     for item in maxs:
         angle_rad = np.angle(fourier[item])
-        print(angle_rad)
+        # print(angle_rad)
         angle_deg = math.degrees(angle_rad)
-        print(angle_deg)
+        # print(angle_deg)
         deg_char = chr(round(angle_deg))
         pass_chars.append(deg_char)
 

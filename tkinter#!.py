@@ -8,6 +8,8 @@ import fourier_pass_locker as fplocker
 import fourier_pass_unlocker as fpunlocker
 from tkinter import filedialog
 
+LARGE_FONT = ('Times', 16, 'bold')
+normal_font = ('Verdana', 12)
 
 class Fourier_pass_locker(tk.Tk):
 
@@ -19,8 +21,9 @@ class Fourier_pass_locker(tk.Tk):
 
         self.shared_data = {}
 
-        tk.Tk.wm_geometry(self, newGeometry = '500x200')
+        tk.Tk.wm_geometry(self, newGeometry = '600x200')
         tk.Tk.wm_title(self, 'Welcome to Fourier Pass Locker!')
+        tk.Tk.iconbitmap(self, '@/home/naveen/Desktop/My_fourier_project/Traditional-Sri-Lankan-Wooden-Mask.xbm')
         # tk.Tk.iconbitmap(self, default = 'devilpy_logo.ico')
         container = tk.Frame(self)
         container.pack(side = 'top', fill = 'both', expand = True)
@@ -52,17 +55,17 @@ class WelcomePage(tk.Frame):
 
         tk.Frame.configure(self, bg = '#b6e7f9')
 
-        label = tk.Label(self, text='Welcome to Fourier_Pass_Locker', bg = '#b6e7f9')
-        label.grid(column = 1 , row = 0)
+        label = tk.Label(self, text='Welcome to Fourier Pass Locker', bg = '#b6e7f9', font = LARGE_FONT)
+        label.place(relx = 0.5 , rely = 0.05, anchor = 'n')
 
-        btn1 = tk.Button(self, text='New Member', command=lambda: controller.show_frame(RegistrationPage))
-        btn1.grid(column=1, row=2)
+        btn1 = tk.Button(self, text='New Member', command=lambda: controller.show_frame(RegistrationPage), font = normal_font)
+        btn1.place(relx = 0.25, rely = 0.5, anchor = 'n', relheight = 0.2, relwidth = 0.2)
 
-        label2 = tk.Label(self, text='ALREADY A MEMBER?', bg = '#b6e7f9')
-        label2.grid(column=1, row=4)
+        label2 = tk.Label(self, text='ALREADY A MEMBER?', bg = '#b6e7f9', font = normal_font)
+        label2.place(relx= 0.75, rely = 0.5, anchor = 's')
 
-        btn2 = tk.Button(self, text='Sign In!', command=lambda: controller.show_frame(Sign_in_page))
-        btn2.grid(column= 1, row=5)
+        btn2 = tk.Button(self, text='Sign In!', command=lambda: controller.show_frame(Sign_in_page), font = normal_font)
+        btn2.place(relx = 0.75, rely = 0.7, relheight = 0.2, relwidth = 0.2, anchor = 's')
 
 
 
@@ -73,17 +76,16 @@ class RegistrationPage(tk.Frame):
         tk.Frame.__init__(self,parent)
         tk.Frame.configure(self, bg = '#b6e7f9')
 
-        lbl1 = tk.Label(self, text='username')
-        lbl1.grid(column=0, row=1)
-        self.txt1 = tk.Entry(self, width=10)
-        self.txt1.grid(column=1, row=1)
+        lbl1 = tk.Label(self, text='username', bg = '#b6e7f9')
+        lbl1.place(relx = 0.25, rely = 0.1, anchor = 'n')
+        self.txt1 = tk.Entry(self, width=20)
+        self.txt1.place(relx = 0.55, rely=0.1, relwidth = 0.4, anchor = 'n')
 
 
-        lbl2 = tk.Label(self, text='If you are ready, please prepare to deliver voice sample!')
-        lbl2.grid(column=0, row=2)
-
+        lbl2 = tk.Label(self, text='If you are ready, please prepare to deliver voice sample!', bg = '#b6e7f9')
+        lbl2.place(relx=0.5,rely = 0.7, anchor = 's')
         btn1 = tk.Button(self, text='Record Voice Password for Locker', command=lambda: self.register_user(parent, controller))
-        btn1.grid(column=1, row=2)
+        btn1.place(relx = 0.5, rely = 0.9, relheight = 0.2, relwidth = 0.5, anchor = 's' )
 
     def register_user(self, parent, controller):
         text = self.txt1.get()
@@ -96,7 +98,6 @@ class RegistrationPage(tk.Frame):
             index = np.where(key[1] == sorted(key[1])[j])
             maxess.append(index[0][0])
             j += -1
-        print(maxess)
         sha_myspecs = hash_it.hash_me(str(maxess))
 
         membersFile = open('members.txt', 'a')
@@ -109,19 +110,19 @@ class Sign_in_page(tk.Frame):
         self.controller = controller
         tk.Frame.__init__(self, parent)
         tk.Frame.configure(self, bg='#b6e7f9')
+        lbl = tk.Label(self, text = 'SignIn', font = LARGE_FONT, bg='#b6e7f9')
+        lbl.place(relx = 0.5, rely = 0.05, anchor = 'n')
+        lbl1 = tk.Label(self, text='username', font = normal_font, bg='#b6e7f9')
+        lbl1.place(relx = 0.2, rely = 0.2, relheight = 0.2, relwidth = 0.15)
+        self.txt1 = tk.Entry(self)
+        self.txt1.place(relx = 0.45, rely = 0.2, relheight = 0.2, relwidth = 0.4)
 
-        lbl1 = tk.Label(self, text='username')
-        lbl1.grid(column=0, row=1)
-        self.txt1 = tk.Entry(self, width=10)
-        self.txt1.grid(column=1, row=1)
-
-        btn1 = tk.Button(self, text='Record Voice Password for Locker',
-                         command=lambda: self.signme_in(parent, controller))
-        btn1.grid(column=1, row=2)
+        btn1 = tk.Button(self, text='Record Voice Password for Locker',command=lambda: self.signme_in(parent, controller), font = normal_font)
+        btn1.place(relx = 0.5, rely = 0.7, relheight = 0.2, relwidth = 0.5, anchor = 's')
 
     def signme_in(self, parent, controller):
         shit = Rec_page(parent, controller)
-        key = shit.audio_analysis1('voice', tim=5)
+        key = shit.audio_analysis1(controller, parent,rec = 'voice', tim=5)
         maxess = []
         j = -1
         for k in range(5):
@@ -134,13 +135,11 @@ class Sign_in_page(tk.Frame):
         membersFile = open('members.txt', 'r')
         users_and_passwords = membersFile.readlines()
         membersFile.close()
-        print(users_and_passwords)
         user_pass_info = {}
         for element in users_and_passwords:
             usp = element.split('\n')
             us_and_p = usp[0].split(':')
             user_pass_info[us_and_p[0]] = us_and_p[1]
-        print(user_pass_info)
         username = self.txt1.get()
         self.controller.shared_data['username'] = username
         shaEncryp = hash_it.hash_me(username)
@@ -162,11 +161,11 @@ class StartPage(tk.Frame):
         tk.Frame.__init__(self,parent)
         tk.Frame.configure(self, bg='#b6e7f9')
 
-        btn1 = tk.Button(self, text='Generate password audio', command = lambda: controller.show_frame(Form_Page))
-        btn1.grid(column=0, row=1)
+        btn1 = tk.Button(self, text='Generate password audio', command = lambda: controller.show_frame(Form_Page), font = normal_font)
+        btn1.place(relx = 0.25, rely = 0.5, relheight = 0.2, relwidth = 0.4, anchor = 'n')
 
-        btn2 = tk.Button(self, text='Retrieve password from audio', command = lambda: controller.show_frame(Form_Page2))
-        btn2.grid(column=1, row=1)
+        btn2 = tk.Button(self, text='Retrieve password from audio', command = lambda: controller.show_frame(Form_Page2), font = normal_font)
+        btn2.place(relx = 0.75, rely = 0.5, relheight = 0.2, relwidth = 0.45, anchor = 'n')
 
 
 class Form_Page(tk.Frame):
@@ -176,26 +175,26 @@ class Form_Page(tk.Frame):
         tk.Frame.__init__(self,parent)
         tk.Frame.configure(self, bg='#b6e7f9')
 
-        label = tk.Label(self, text = 'Enter Details')
-        label.grid(column = 2, row = 0)
+        label = tk.Label(self, text = 'Enter Details', font = LARGE_FONT , bg = '#b6e7f9')
+        label.place(relx = 0.5, rely = 0.1, anchor = 'n', relheight = 0.2, relwidth = 0.25)
 
-        lbl1 = tk.Label(self, text = 'acc username')
-        lbl1.grid(column = 0, row = 1)
+        lbl1 = tk.Label(self, text = 'acc username', font = normal_font, bg = '#b6e7f9')
+        lbl1.place(relx = 0.3, rely = 0.25, relheight = 0.1, relwidth = 0.25, anchor = 'n')
         txt1 = tk.Entry(self, width = 10)
-        txt1.grid(column = 1, row = 1)
+        txt1.place(relx = 0.6, rely = 0.25, relheight = 0.1, relwidth = 0.25, anchor = 'n')
 
-        lbl2 = tk.Label(self, text = 'account associated')
-        lbl2.grid(column = 0, row = 2)
+        lbl2 = tk.Label(self, text = 'account associated', font = normal_font, bg = '#b6e7f9')
+        lbl2.place(relx = 0.3, rely = 0.5, relheight = 0.1, relwidth = 0.25, anchor = 's')
         txt2 = tk.Entry(self, width=10)
-        txt2.grid(column=1, row=2)
+        txt2.place(relx = 0.6, rely = 0.5, relheight = 0.1, relwidth = 0.25, anchor = 's')
 
-        lbl3 = tk.Label(self, text='password')
-        lbl3.grid(column=0, row=3)
+        lbl3 = tk.Label(self, text='password', font = normal_font,bg = '#b6e7f9')
+        lbl3.place(relx = 0.3, rely = 0.7, relheight = 0.1, relwidth = 0.25, anchor = 's')
         txt3 = tk.Entry(self, width=10)
-        txt3.grid(column=1, row=3)
+        txt3.place(relx = 0.6, rely = 0.7, relheight = 0.1, relwidth = 0.25, anchor = 's')
 
         btn_home = ttk.Button(self, text = 'Home', command = lambda: controller.show_frame(StartPage))
-        btn_home.grid(column = 3, row = 2)
+        btn_home.place(relx = 0.3, rely = 0.95, height = 40, width = 100, anchor = 's')
 
         def click_submit():
             entries = []
@@ -207,8 +206,8 @@ class Form_Page(tk.Frame):
             controller.show_frame(Rec_or_Audiofile)
             # print(Fourier_pass_locker.shared_data)
 
-        btn_submit = tk.Button(self, text='Submit', command=lambda: click_submit())
-        btn_submit.grid(column=2, row=2)
+        btn_submit = tk.Button(self, text='Submit', command=lambda: click_submit(), font = normal_font)
+        btn_submit.place(relx = 0.6, rely = 0.95, height = 40, width = 100, anchor = 's')
 
 
 
@@ -221,36 +220,25 @@ class Form_Page2(tk.Frame):
         # label = tk.Label(self, text = 'Enter Details')
         # label.pack(pady = 10, padx = 10)
 
-        lbl1 = tk.Label(self, text='account associated')
-        lbl1.grid(column=0, row=0)
+        lbl1 = tk.Label(self, text='account associated', bg='#b6e7f9', font = normal_font)
+        lbl1.place(relx = 0.3, rely = 0.1, relheight = 0.1, relwidth = 0.4, anchor = 'n')
         txt1 = tk.Entry(self, width=20)
-        txt1.grid(column=1, row=0)
+        txt1.place(relx = 0.7, rely = 0.1, relheight = 0.1, relwidth = 0.4, anchor = 'n')
 
-        lbl2 = tk.Label(self, text = 'Select Audio file')
-        lbl2.grid(column = 0, row = 1)
+        lbl2 = tk.Label(self, text = 'Select Audio file', bg='#b6e7f9', font = normal_font)
+        lbl2.place(relx = 0.3, rely = 0.6, anchor = 's',relheight = 0.2, relwidth = 0.4)
         btn1 = tk.Button(self, text = 'Open' ,command = lambda: click_open())
-        btn1.grid(column = 1, row = 1)
+        btn1.place(relx = 0.7, rely = 0.6, height = 40, width = 100, anchor = 's')
 
         def click_open():
             acc_name = txt1.get()
             self.select_file(controller,parent,acc_name)
-
-
-        btn_home = ttk.Button(self, text = 'Home', command = lambda: controller.show_frame(StartPage))
-        btn_home.grid(column = 3, row = 1)
-
-        btn_home = ttk.Button(self, text = 'Next')
-        btn_home.grid(column = 0, row = 3)
-
-        btn_home = ttk.Button(self, text = 'Generate', command = lambda: controller.show_frame(Form_Page))
-        btn_home.grid(column = 1, row = 3)
 
     def select_file(self, parent, controller,acc_name):
         file = filedialog.askopenfilename()
         self.is_acc_available(controller,parent, acc_name, file)
 
     def is_acc_available(self,controller, parent, acc_name, file):
-        self.controller = controller
         maxess = self.controller.shared_data['maxess']
         username = self.controller.shared_data['username']
         hashed_user = hash_it.hash_me(username)
@@ -261,15 +249,19 @@ class Form_Page2(tk.Frame):
         for element in acc_data:
             acc = element.split('\n')
             acc_names = acc[0].split('=')
-            if username != acc_names[0]:
+            if hashed_user != acc_names[0]:
                 pass
-            elif hashed_user == acc_names[0] and username[1] == hashed_acc_name:
-                n = acc_names[1]
-                self.controller.shared_data['length'] = n
-                controller.show_frame(Process_Page)
-                password = fpunlocker.unlock_pass(file,n,maxess)
-                controller.show_frame(Final_Page)
-                tk.messagebox.showinfo('Your password is %s' % password)
+            elif hashed_user == acc_names[0]:
+                if acc_names[1] == hashed_acc_name:
+                    n = acc_names[2]
+                    self.controller.shared_data['length'] = n
+                    self.controller.show_frame(Process_Page)
+                    password = fpunlocker.unlock_pass(file,n,maxess)
+                    self.controller.show_frame(Final_Page)
+                    tk.messagebox.showinfo('Successfully Retrieved!','Your password is %s' % password)
+                    break
+                else:
+                    pass
             else:
                 tk.messagebox.showinfo('Could not find account under %s' % username)
                 controller.show_frame(Sign_in_page)
@@ -282,11 +274,11 @@ class Rec_or_Audiofile(tk.Frame):
 
         selected = tk.IntVar()
 
-        rad1 = tk.Radiobutton(self, text = 'Record Audio', value = 1, variable = selected)
-        rad2 = tk.Radiobutton(self, text = 'Use audio file', value = 2, variable = selected)
+        rad1 = tk.Radiobutton(self, text = 'Record Audio', value = 1, variable = selected, font = normal_font, bg='#b6e7f9')
+        rad2 = tk.Radiobutton(self, text = 'Use audio file', value = 2, variable = selected, font = normal_font, bg='#b6e7f9')
 
-        rad1.grid(column = 0, row = 0)
-        rad2.grid(column = 1, row = 0)
+        rad1.place(relx = 0.3, rely = 0.25, relheight = 0.2, relwidth = 0.4, anchor = 'n')
+        rad2.place(relx = 0.7, rely = 0.25, relheight = 0.2, relwidth = 0.4, anchor = 'n')
 
         def choice_of_audio():
             if selected.get() == 1:
@@ -296,7 +288,7 @@ class Rec_or_Audiofile(tk.Frame):
 
 
         btn1 = tk.Button(self, text = 'Okay', command = lambda: choice_of_audio())
-        btn1.grid(column = 1, row = 3)
+        btn1.place(relx = 0.5, rely = 0.7, anchor = 's', height = 40, width = 100)
 
 
 class Rec_page(tk.Frame):
@@ -327,11 +319,11 @@ class Aud_page(tk.Frame):
         tk.Frame.__init__(self,parent)
         tk.Frame.configure(self, bg='#b6e7f9')
 
-        labl1 = tk.Label(self, text = "Select the file you wish to use" )
-        labl1.grid(column = 0, row = 0)
+        labl1 = tk.Label(self, text = "Select the file you wish to use", bg='#b6e7f9' )
+        labl1.place(relx = 0.25, rely = 0.5, relheight = 0.2, relwidth = 0.5, anchor = 'n')
 
         btn1 = tk.Button(self, text='Open', command=lambda: self.select_file(parent, controller))
-        btn1.grid(column=2, row=0)
+        btn1.place(relx = 0.8, rely = 0.5,relheight = 0.2, relwidth = 0.2)
 
     def aud_analysis2(self, file, parent, controller):
         self.controller.shared_data['properties'] = fourier_comps.give_me_mags(file = file, f = 'usingfile')
@@ -362,10 +354,13 @@ class Process_Page(tk.Frame):
         properties = self.controller.shared_data['properties']
         maxs = fplocker.get_maxs(properties, n)
         self.controller.shared_data['maxs'] = maxs
-        self.create_final_file(controller)
+        self.select_location(controller)
 
+    def select_location(self,controller):
+        dir_name = filedialog.askdirectory()
+        self.create_final_file(dir_name, controller)
 
-    def create_final_file(self, controller):
+    def create_final_file(self, dir_name, controller):
         self.controller = controller
         properties = self.controller.shared_data['properties']
         entries = self.controller.shared_data['entries']
@@ -374,8 +369,8 @@ class Process_Page(tk.Frame):
         n = len(password)
         maxess = self.controller.shared_data['maxess']
         maxs = self.controller.shared_data['maxs']
-        user = entries[0]
-        account_name = entries[1]
+        account_name = entries[0]
+        user = entries[1]
         account_info_file = open('account_info.txt', 'a')
         encryp_user = hash_it.hash_me(username)
         encryp_acc = hash_it.hash_me(account_name)
@@ -383,7 +378,7 @@ class Process_Page(tk.Frame):
         account_info_file.close()
         # all ascii values for possible password characters are within the range of 65 ~ 150, can be easily represented
         # as phase angles in degrees!
-        fplocker.create_final(password,maxs,user,properties,maxess)
+        fplocker.create_final(password,maxs,user,properties,maxess, dir_name)
         controller.show_frame(Final_Page)
 
 class Final_Page(tk.Frame):
@@ -392,8 +387,12 @@ class Final_Page(tk.Frame):
         tk.Frame.__init__(self, parent)
         tk.Frame.configure(self, bg='#b6e7f9')
 
-        labl1 = tk.Label(self, text='Awesome, Process was successful!')
-        labl1.pack()
+        labl1 = tk.Label(self, text='Awesome, Process was successful!', font = LARGE_FONT, bg='#b6e7f9')
+        labl1.place(relx = 0.5, rely = 0.2, relheight = 0.2, relwidth = 0.6, anchor = 'n')
+
+        btn_home = ttk.Button(self, text='Home', command=lambda: controller.show_frame(StartPage))
+        btn_home.place(relx=0.3, rely=0.95, height=40, width=100, anchor='s')
+
 
 app = Fourier_pass_locker()
 app.mainloop()

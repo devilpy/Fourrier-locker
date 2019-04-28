@@ -2,7 +2,8 @@ import audio_analysis_fft as aud_an
 import numpy as np
 import math
 from scipy.io import wavfile
-import fourier_pass_unlocker as unlocker
+import os
+
 
 def get_maxs(f_m,n):
     mag = f_m[1]
@@ -50,7 +51,7 @@ def yates(a,b):
 #applying the ascii values of characters of passwords in to the fourier elements of indexes in alpha
 #all ascii values for possible password characters are within the range of 65 ~ 150, can be easily represented
 #as phase angles in degrees!
-def create_final(password, maxs, name_of_user, properties, maxess):
+def create_final(password, maxs, name_of_user, properties, maxess,dir_name):
     n = len(password)
     fourier = properties[0]
     mag = properties[1]
@@ -72,9 +73,8 @@ def create_final(password, maxs, name_of_user, properties, maxess):
     # creating the modified audio file
     data = np.fft.irfft(fourier)
     name_of_newaud = name_of_user
-    name = name_of_newaud + '.wav'
-    print(name)
-    wavfile.write(name, 44100, data)
+    filepath = os.path.join(dir_name, name_of_newaud + '.wav')
+    wavfile.write(filepath, 44100, data)
 
 
 
