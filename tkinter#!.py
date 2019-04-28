@@ -178,13 +178,13 @@ class Form_Page(tk.Frame):
         label = tk.Label(self, text = 'Enter Details', font = LARGE_FONT , bg = '#b6e7f9')
         label.place(relx = 0.5, rely = 0.1, anchor = 'n', relheight = 0.2, relwidth = 0.25)
 
-        lbl1 = tk.Label(self, text = 'acc username', font = normal_font, bg = '#b6e7f9')
+        lbl1 = tk.Label(self, text = 'account username', font = normal_font, bg = '#b6e7f9')
         lbl1.place(relx = 0.3, rely = 0.25, relheight = 0.1, relwidth = 0.25, anchor = 'n')
         txt1 = tk.Entry(self, width = 10)
         txt1.place(relx = 0.6, rely = 0.25, relheight = 0.1, relwidth = 0.25, anchor = 'n')
 
-        lbl2 = tk.Label(self, text = 'account associated', font = normal_font, bg = '#b6e7f9')
-        lbl2.place(relx = 0.3, rely = 0.5, relheight = 0.1, relwidth = 0.25, anchor = 's')
+        lbl2 = tk.Label(self, text = 'account associated: eg:gmail,ebay etc', font = normal_font, bg = '#b6e7f9')
+        lbl2.place(relx = 0.3, rely = 0.5, relheight = 0.1, relwidth = 0.3, anchor = 's')
         txt2 = tk.Entry(self, width=10)
         txt2.place(relx = 0.6, rely = 0.5, relheight = 0.1, relwidth = 0.25, anchor = 's')
 
@@ -369,11 +369,12 @@ class Process_Page(tk.Frame):
         n = len(password)
         maxess = self.controller.shared_data['maxess']
         maxs = self.controller.shared_data['maxs']
-        account_name = entries[0]
-        user = entries[1]
+        account_username = entries[0]
+        acc_associate = entries[1]
+        user = account_username + '_' + acc_associate
         account_info_file = open('account_info.txt', 'a')
         encryp_user = hash_it.hash_me(username)
-        encryp_acc = hash_it.hash_me(account_name)
+        encryp_acc = hash_it.hash_me(acc_associate)
         account_info_file.write(encryp_user + '=' + encryp_acc + '=' + str(n) + '\n')
         account_info_file.close()
         # all ascii values for possible password characters are within the range of 65 ~ 150, can be easily represented
