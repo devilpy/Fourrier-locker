@@ -8,7 +8,6 @@ the tkinter file contains all the above mentioned code arranged among tkinter gu
 I used the fun.wav file to test and it worked well.
 To make the program only accessible by its user,(and also encrypt the data that we are hiding for further safety) , I have used certain features of the users voice. So currently it is important to have a a speech segment of yours to access and encrypt information in the program.
 
-!!Currently the voice pass doesn't seem to be consistent results (It's not practical to repeat a phrase exactly same as previously recorded, so right now I am just using a recorded audio sample of a frequency signal as a voice pass)
-To solve the above mentioned problem I am hoping to introduce machine learning to create a speech profile for the user. 
+Take a look at #issues for current issues to take into consideration.
 
 #Naveen Devinda from Devilpy productions!!
